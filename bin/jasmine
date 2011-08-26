@@ -1,0 +1,5 @@
+#!/usr/bin/env node
+
+if (process.argv[process.argv.length-1] === "test")
+  process.argv[process.argv.length-1] += "/spec/javascripts"
+require("jasmine-node/bin/jasmine-node");
