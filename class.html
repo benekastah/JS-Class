@@ -1,0 +1,370 @@
+<!DOCTYPE html>  <html> <head>   <title>class.js</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               class.js             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>                            </td>             <td class="code">               <div class="highlight"><pre><span class="cm">/*</span>
+<span class="cm">Copyright (c) 2011 Paul Harper</span>
+
+<span class="cm">MIT Licensed:</span>
+<span class="cm">Permission is hereby granted, free of charge, to any person obtaining a copy of </span>
+<span class="cm">this software and associated documentation files (the &quot;Software&quot;), to deal in </span>
+<span class="cm">the Software without restriction, including without limitation the rights to </span>
+<span class="cm">use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies </span>
+<span class="cm">of the Software, and to permit persons to whom the Software is furnished to do </span>
+<span class="cm">so, subject to the following conditions:</span>
+
+<span class="cm">The above copyright notice and this permission notice shall be included in all </span>
+<span class="cm">copies or substantial portions of the Software.</span>
+
+<span class="cm">THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR </span>
+<span class="cm">IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS </span>
+<span class="cm">FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR </span>
+<span class="cm">COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER </span>
+<span class="cm">IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN </span>
+<span class="cm">CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</span>
+<span class="cm">*/</span></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <h2>Introduction</h2>
+
+<p><code>Class</code> is a simple and effective way of creating classes in a javascript program.
+It defines mechanisms for inheritance and does all the irritating work for you. It also
+gives you a base prototype for classes that are made, so they all inherit just a few useful
+functions.</p>
+
+<p>This should be a fairly approachable read as far as documentation goes, but when you are ready to dive in,
+head over to the unit tests. There you will find examples galore!</p>
+
+<hr />             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <p>Just some initial set-up boilerplate...</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="kd">var</span> <span class="nx">global</span><span class="p">;</span>
+<span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+  <span class="s2">&quot;use strict&quot;</span><span class="p">;</span>
+	
+	<span class="k">if</span> <span class="p">(</span><span class="k">typeof</span> <span class="nx">global</span> <span class="o">===</span> <span class="s2">&quot;undefined&quot;</span><span class="p">)</span>
+		<span class="nx">global</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+	<span class="kd">var</span> <span class="nx">ex</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+	
+	<span class="kd">var</span> <span class="nx">hasProperty</span> <span class="o">=</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">hasOwnProperty</span><span class="p">,</span>
+	<span class="nx">bind</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">scope</span><span class="p">)</span> <span class="p">{</span>
+		<span class="k">if</span> <span class="p">(</span><span class="nb">Function</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">bind</span><span class="p">)</span>
+			<span class="nx">bind</span> <span class="o">=</span> <span class="nb">Function</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">bind</span><span class="p">;</span>
+		<span class="k">else</span></pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <p>This function emulates Function.prototype.bind in environments where it is missing.
+Taken from <a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Function/bind" title="Function Bind">the Mozilla JS docs</a>.</p>             </td>             <td class="code">               <div class="highlight"><pre>			<span class="nx">bind</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">oThis</span><span class="p">)</span> <span class="p">{</span>
+				<span class="k">if</span> <span class="p">(</span><span class="k">typeof</span> <span class="k">this</span> <span class="o">!==</span> <span class="s2">&quot;function&quot;</span><span class="p">)</span>
+					<span class="k">throw</span> <span class="k">new</span> <span class="nx">TypeError</span><span class="p">(</span><span class="s2">&quot;Function.prototype.bind - &quot;</span> <span class="o">+</span> 
+					  <span class="s2">&quot;what is trying to be fBound is not callable&quot;</span><span class="p">);</span>
+
+				<span class="kd">var</span> <span class="nx">aArgs</span> <span class="o">=</span> <span class="nb">Array</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">slice</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">arguments</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> 
+					<span class="nx">fToBind</span> <span class="o">=</span> <span class="k">this</span><span class="p">,</span> 
+					<span class="nx">fNOP</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{},</span>
+					<span class="nx">fBound</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+						<span class="k">return</span> <span class="nx">fToBind</span><span class="p">.</span><span class="nx">apply</span><span class="p">((</span><span class="k">this</span> <span class="k">instanceof</span> <span class="nx">fNOP</span> <span class="o">?</span> <span class="k">this</span>
+						    <span class="o">:</span> <span class="nx">oThis</span> <span class="o">||</span> <span class="nb">window</span><span class="p">),</span> 
+						  <span class="nx">aArgs</span><span class="p">.</span><span class="nx">concat</span><span class="p">(</span><span class="nb">Array</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">slice</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">arguments</span><span class="p">)));</span>    
+					<span class="p">};</span>
+
+				<span class="nx">fNOP</span><span class="p">.</span><span class="nx">prototype</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">prototype</span><span class="p">;</span>
+				<span class="nx">fBound</span><span class="p">.</span><span class="nx">prototype</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">fNOP</span><span class="p">();</span>
+
+				<span class="k">return</span> <span class="nx">fBound</span><span class="p">;</span>
+			<span class="p">};</span>
+		<span class="k">return</span> <span class="nx">bind</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">scope</span><span class="p">);</span>
+	<span class="p">};</span>
+	</pre></div>             </td>           </tr>                               <tr id="section-5">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-5">&#182;</a>               </div>               <h2>Class</h2>
+
+<p><strong><code>Class</code></strong>: <code>Class</code> is nothing more than a class with the special ability to create classes.
+Naturally, the classes it makes descend from it and therefore inherit it's useful prototype functions.</p>             </td>             <td class="code">               <div class="highlight"><pre>	<span class="k">this</span><span class="p">.</span><span class="nx">Class</span> <span class="o">=</span> <span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+		<span class="kd">function</span> <span class="nx">Class</span><span class="p">()</span> <span class="p">{}</span>
+		
+		<span class="kd">var</span> <span class="nx">noInit</span> <span class="o">=</span> <span class="p">{</span> <span class="nx">noInit</span><span class="o">:</span> <span class="kc">true</span> <span class="p">};</span>
+		</pre></div>             </td>           </tr>                               <tr id="section-6">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-6">&#182;</a>               </div>               <p>Use <code>Class.def</code> to define a new class. If the first parameter <code>Parent</code> is absent, it assumes
+that <code>Parent</code> should be <code>Class</code>, and accepts the first parameter to be the child prototype 
+object (<code>childProto</code>).</p>
+
+<p>For the second argument, you may pass in an object, or a function that returns an
+object.</p>             </td>             <td class="code">               <div class="highlight"><pre>		<span class="nx">Class</span><span class="p">.</span><span class="nx">def</span> <span class="o">=</span> <span class="nx">Class</span><span class="p">.</span><span class="nx">define</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">Parent</span><span class="p">,</span> <span class="nx">childProto</span><span class="p">)</span> <span class="p">{</span>
+			<span class="k">if</span> <span class="p">(</span><span class="nx">arguments</span><span class="p">.</span><span class="nx">length</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
+				<span class="nx">childProto</span> <span class="o">=</span> <span class="nx">Parent</span><span class="p">;</span>
+				<span class="nx">Parent</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+			<span class="p">}</span>
+			
+			<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">childProto</span><span class="p">)</span> <span class="k">throw</span> <span class="s2">&quot;No child prototype defined.&quot;</span><span class="p">;</span>
+			<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">Parent</span><span class="p">)</span> <span class="nx">Parent</span> <span class="o">=</span> <span class="nx">Class</span><span class="p">;</span>
+			
+			<span class="nx">childProto</span> <span class="o">=</span> <span class="nx">getObject</span><span class="p">(</span><span class="nx">childProto</span><span class="p">);</span>
+			
+			<span class="kd">function</span> <span class="nx">ChildClass</span><span class="p">()</span> <span class="p">{</span>
+			     </pre></div>             </td>           </tr>                               <tr id="section-7">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-7">&#182;</a>               </div>               <p>Note: the new <code>ChildClass</code> throws an error when invoked improperly (without the <code>new</code> operator). 
+We basically just check
+to see if <code>this</code> is equal to the global object. Since classes can all be used to mixin their
+properties to another object, this means that classes cannot be mixed in to the global object
+directly.</p>             </td>             <td class="code">               <div class="highlight"><pre>				<span class="k">if</span> <span class="p">(</span><span class="k">this</span> <span class="o">===</span> <span class="nx">global</span><span class="p">)</span>
+					<span class="k">throw</span> <span class="k">new</span> <span class="nx">TypeError</span><span class="p">(</span><span class="s2">&quot;Class scope cannot be global scope. &quot;</span> <span class="o">+</span>
+					  <span class="s2">&quot;You must instantiate with `new`.&quot;</span><span class="p">);</span>
+				</pre></div>             </td>           </tr>                               <tr id="section-8">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-8">&#182;</a>               </div>               <p>If we don't descend from <code>Class</code> (for example, in situations where you extend native Javascript
+types) then we mixin <code>Class</code>'s properties into <code>this</code> so we don't have any surprises.</p>
+
+<p><strong>Note</strong>: This means that these kinds of classes are <strong>not</strong> instances of <code>Class</code>. We assume it is a class of ours,
+however, if the class itself has the static property <code>isClass</code> set to <code>true</code>.</p>             </td>             <td class="code">               <div class="highlight"><pre>				<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="k">this</span> <span class="k">instanceof</span> <span class="nx">Class</span><span class="p">))</span> <span class="p">{</span>
+					<span class="nx">Class</span><span class="p">.</span><span class="nx">mixTo</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">constructor</span><span class="p">.</span><span class="nx">prototype</span><span class="p">);</span>
+				<span class="p">}</span>
+				
+				<span class="k">if</span> <span class="p">(</span><span class="nx">ChildClass</span><span class="p">.</span><span class="nx">noInit</span> <span class="o">!==</span> <span class="nx">noInit</span>
+				  <span class="o">&amp;&amp;</span> <span class="k">typeof</span> <span class="k">this</span><span class="p">.</span><span class="nx">initialize</span> <span class="o">===</span> <span class="s2">&quot;function&quot;</span><span class="p">)</span> <span class="p">{</span>
+					<span class="k">this</span><span class="p">.</span><span class="nx">initialize</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">);</span>
+				<span class="p">}</span>
+			<span class="p">}</span>
+			
+			<span class="nx">ChildClass</span><span class="p">.</span><span class="nx">prototype</span> <span class="o">=</span> <span class="nx">prototypeInstance</span><span class="p">(</span><span class="nx">Parent</span><span class="p">);</span>
+			<span class="nx">ChildClass</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">constructor</span> <span class="o">=</span> <span class="nx">ChildClass</span><span class="p">;</span>
+			<span class="nx">ChildClass</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">__super__</span> <span class="o">=</span> <span class="nx">Parent</span><span class="p">;</span>
+			<span class="nx">applyPrototypeProperties</span><span class="p">(</span><span class="nx">childProto</span><span class="p">,</span> <span class="nx">ChildClass</span><span class="p">.</span><span class="nx">prototype</span><span class="p">);</span>
+			
+			<span class="nx">ChildClass</span><span class="p">.</span><span class="nx">Parent</span> <span class="o">=</span> <span class="nx">Parent</span><span class="p">;</span>
+			<span class="nx">applyStaticProperties</span><span class="p">(</span><span class="nx">Parent</span><span class="p">,</span> <span class="nx">ChildClass</span><span class="p">);</span>
+			
+			<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">extendsClass</span><span class="p">(</span><span class="nx">ChildClass</span><span class="p">))</span> <span class="p">{</span>
+			  <span class="nx">applyStaticProperties</span><span class="p">(</span><span class="nx">Class</span><span class="p">,</span> <span class="nx">ChildClass</span><span class="p">);</span>
+			<span class="p">}</span>
+			
+			<span class="k">return</span> <span class="nx">ChildClass</span><span class="p">;</span>
+		<span class="p">};</span>
+		</pre></div>             </td>           </tr>                               <tr id="section-9">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-9">&#182;</a>               </div>               <h3>Static Methods</h3>
+
+<p>These will be shared by its children otherwise noted.</p>             </td>             <td class="code">               <div class="highlight"><pre>		
+		<span class="nx">Class</span><span class="p">.</span><span class="nx">isClass</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+		</pre></div>             </td>           </tr>                               <tr id="section-10">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-10">&#182;</a>               </div>               <p><strong><code>Class.extend</code></strong>: this is the primary way for setting up inheritance heirarchies. With a class <code>Person</code>,
+<code>Person.extend({ ... })</code> is often more convenient than the equivalent alternative, 
+<code>Class.def(Person, { ... })</code>.</p>             </td>             <td class="code">               <div class="highlight"><pre>		<span class="nx">Class</span><span class="p">.</span><span class="nx">extend</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">childProto</span><span class="p">)</span> <span class="p">{</span>
+			<span class="k">return</span> <span class="nx">Class</span><span class="p">.</span><span class="nx">define</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">childProto</span><span class="p">);</span>
+		<span class="p">};</span>
+		</pre></div>             </td>           </tr>                               <tr id="section-11">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-11">&#182;</a>               </div>               <p><strong><code>Class.simple</code></strong>: makes a simple class from a plain object: by coincidence, the same thing <code>Class.extend</code> does.
+The only difference between these two is that <code>Class.simple</code> will not be shared to child classes,
+meaning that <code>Class.simple</code> will only ever extend <code>Class</code>. This method is useful when you
+want to extend a plain object easily and safely.</p>             </td>             <td class="code">               <div class="highlight"><pre>		<span class="nx">Class</span><span class="p">.</span><span class="nx">simple</span> <span class="o">=</span> <span class="nx">Class</span><span class="p">.</span><span class="nx">extend</span><span class="p">;</span>
+		</pre></div>             </td>           </tr>                               <tr id="section-12">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-12">&#182;</a>               </div>               <p><strong><code>Class.mixTo</code></strong>: this allows us to use a class as a mixin. It also will add its static properties to the static
+properties of the receiver's constructor (class) if <code>applyStatics</code> is truthy.</p>             </td>             <td class="code">               <div class="highlight"><pre>		<span class="nx">Class</span><span class="p">.</span><span class="nx">mixTo</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">receiver</span><span class="p">,</span> <span class="nx">applyStatics</span><span class="p">)</span> <span class="p">{</span>
+			<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">mixer</span><span class="p">)</span> <span class="k">this</span><span class="p">.</span><span class="nx">mixer</span> <span class="o">=</span> <span class="nx">ex</span><span class="p">.</span><span class="nx">mixer</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">prototype</span><span class="p">);</span>
+			<span class="kd">var</span> <span class="nx">constructor</span> <span class="o">=</span> <span class="nx">receiver</span><span class="p">.</span><span class="nx">constructor</span><span class="p">;</span>
+			<span class="k">this</span><span class="p">.</span><span class="nx">mixer</span><span class="p">.</span><span class="nx">mixTo</span><span class="p">(</span><span class="nx">receiver</span><span class="p">);</span>
+			<span class="nx">receiver</span><span class="p">.</span><span class="nx">constructor</span> <span class="o">=</span> <span class="nx">constructor</span><span class="p">;</span>
+			
+			<span class="k">if</span> <span class="p">(</span><span class="nx">applyStatics</span><span class="p">)</span>
+			  <span class="nx">applyStaticProperties</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">constructor</span><span class="p">);</span>
+			<span class="k">return</span> <span class="nx">receiver</span><span class="p">;</span>
+		<span class="p">};</span>
+		</pre></div>             </td>           </tr>                               <tr id="section-13">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-13">&#182;</a>               </div>               <p><strong><code>Class.singleton</code></strong>: handy for when you only want one instance of a particular class. Use it like so:</p>
+
+<pre><code>var Sun = Class.def({
+  canKillYou: true
+  , keepsYouAlive: true
+}).singleton();
+</code></pre>
+
+<p>Any parameters passed in to <code>singleton</code> will be passed in turn to the initialize function
+for the class (if there is one).</p>             </td>             <td class="code">               <div class="highlight"><pre>		<span class="nx">Class</span><span class="p">.</span><span class="nx">singleton</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+			<span class="kd">var</span> <span class="nx">ret</span> <span class="o">=</span> <span class="nx">prototypeInstance</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+			<span class="k">if</span> <span class="p">(</span><span class="k">typeof</span> <span class="nx">ret</span><span class="p">.</span><span class="nx">initialize</span> <span class="o">===</span> <span class="s2">&quot;function&quot;</span><span class="p">)</span>
+				<span class="nx">ret</span><span class="p">.</span><span class="nx">initialize</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="nx">ret</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">);</span>
+			<span class="k">return</span> <span class="nx">ret</span><span class="p">;</span>
+		<span class="p">};</span>
+		</pre></div>             </td>           </tr>                               <tr id="section-14">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-14">&#182;</a>               </div>               <p><strong><code>Class.implement</code></strong>: allows you to implement properties to the class after its initial creation. Especially useful
+for methods, which undergo a little special work so that we can use <code>this.supr</code> to refer to the
+super function.</p>
+
+<pre><code>var Thing = Class.define({
+  ...
+});
+
+...
+
+Thing.implement({
+  initialize: function () { ... }
+  , someMethod: function () { ... }
+});
+</code></pre>
+
+<p><strong>Note</strong>: This does not implement static properties. It implements these properties to the class's prototype.</p>             </td>             <td class="code">               <div class="highlight"><pre>		<span class="nx">Class</span><span class="p">.</span><span class="nx">implement</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">obj</span><span class="p">)</span> <span class="p">{</span>
+			<span class="nx">obj</span> <span class="o">=</span> <span class="nx">getObject</span><span class="p">(</span><span class="nx">obj</span><span class="p">);</span>
+			<span class="nx">applyPrototypeProperties</span><span class="p">(</span><span class="nx">obj</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">prototype</span><span class="p">);</span>
+			<span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+		<span class="p">};</span>
+		</pre></div>             </td>           </tr>                               <tr id="section-15">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-15">&#182;</a>               </div>               <p><strong><code>Class.statics</code></strong>: this is the same thing as implement, but for static properties. Mainly useful for adding multiple
+properties at once. This is also useful for defining static properties in 
+a terse manner when the class is created:</p>
+
+<pre><code>var Thing = Class.define({
+  ...
+}).statics({
+  someStaticProperty: ...
+  , otherThing: ...
+  ...
+});
+</code></pre>             </td>             <td class="code">               <div class="highlight"><pre>		<span class="nx">Class</span><span class="p">.</span><span class="nx">statics</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">obj</span><span class="p">)</span> <span class="p">{</span>
+			<span class="nx">obj</span> <span class="o">=</span> <span class="nx">getObject</span><span class="p">(</span><span class="nx">obj</span><span class="p">);</span>
+			<span class="nx">applyStaticProperties</span><span class="p">(</span><span class="nx">obj</span><span class="p">,</span> <span class="k">this</span><span class="p">);</span>
+			<span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+		<span class="p">};</span>
+		</pre></div>             </td>           </tr>                               <tr id="section-16">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-16">&#182;</a>               </div>               <h3>Instance Methods</h3>             </td>             <td class="code">               <div class="highlight"><pre>		</pre></div>             </td>           </tr>                               <tr id="section-17">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-17">&#182;</a>               </div>               <p><strong><code>this.method</code></strong> <em>(aliased <code>defineMethod</code> and <code>defMethod</code>)</em>: allows you to define new methods on the fly
+that are able to use the special <code>this.supr</code> property to call their super functions.</p>
+
+<p><strong>Note</strong>: This method should <strong>not</strong> be used this way:</p>
+
+<pre><code>...
+this.doSomething = this.method("doSomething", function () {
+  this.supr();
+});
+...
+</code></pre>
+
+<p>It will assign <code>this.doSomething</code> to <code>this</code>. Instead, simply do this:</p>
+
+<pre><code>this.method("doSomething", function () {
+  this.supr();
+});
+</code></pre>             </td>             <td class="code">               <div class="highlight"><pre>		<span class="nx">Class</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">method</span> <span class="o">=</span>
+		<span class="nx">Class</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">defineMethod</span> <span class="o">=</span>
+		<span class="nx">Class</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">defMethod</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">name</span><span class="p">,</span> <span class="nx">fn</span><span class="p">)</span> <span class="p">{</span>
+			<span class="k">this</span><span class="p">[</span><span class="nx">name</span><span class="p">]</span> <span class="o">=</span> <span class="nx">defineFnWithSuper</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">__super__</span><span class="p">.</span><span class="nx">prototype</span><span class="p">,</span> <span class="nx">name</span><span class="p">,</span> <span class="nx">fn</span><span class="p">);</span>
+			<span class="k">return</span> <span class="k">this</span><span class="p">;</span>
+		<span class="p">};</span>
+		</pre></div>             </td>           </tr>                               <tr id="section-18">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-18">&#182;</a>               </div>               <p><strong><code>this.bind</code></strong>: this is useful for binding a method to an instance of the class. It was made for private
+functions in a class that need (or want) to use <code>this</code>.</p>
+
+<pre><code>this.something = "cool"
+// this will work:
+var a = this.bind(function () { return this.something; });
+</code></pre>             </td>             <td class="code">               <div class="highlight"><pre>		<span class="nx">Class</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">bind</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">fn</span><span class="p">)</span> <span class="p">{</span>
+			<span class="k">return</span> <span class="nx">bind</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">fn</span><span class="p">,</span> <span class="k">this</span><span class="p">);</span>
+		<span class="p">};</span>
+		</pre></div>             </td>           </tr>                               <tr id="section-19">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-19">&#182;</a>               </div>               <p><strong><code>this.mixin</code></strong> <em>(aliased <code>this.include</code>)</em>: is the preferred way to perform mixins. Multiple inheritance?
+<em>Simple</em>.</p>
+
+<pre><code>var SomeClass = Class.define({
+  initialize: function () {
+    this.mixin(someMixer); // someMixer could also be a class!
+  }
+});
+</code></pre>             </td>             <td class="code">               <div class="highlight"><pre>		<span class="nx">Class</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">mixin</span> <span class="o">=</span>
+		<span class="nx">Class</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">include</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">mixer</span><span class="p">)</span> <span class="p">{</span>
+			<span class="k">return</span> <span class="nx">mixer</span><span class="p">.</span><span class="nx">mixTo</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">constructor</span><span class="p">.</span><span class="nx">prototype</span><span class="p">,</span> <span class="kc">true</span><span class="p">);</span>
+		<span class="p">};</span>
+		
+		<span class="k">return</span> <span class="nx">Class</span><span class="p">;</span>
+		</pre></div>             </td>           </tr>                               <tr id="section-20">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-20">&#182;</a>               </div>               <h3>Private Methods</h3>             </td>             <td class="code">               <div class="highlight"><pre>		
+		<span class="kd">function</span> <span class="nx">extendsClass</span><span class="p">(</span><span class="nx">cls</span><span class="p">)</span> <span class="p">{</span>
+		  <span class="k">if</span> <span class="p">(</span><span class="nx">cls</span><span class="p">.</span><span class="nx">isClass</span><span class="p">)</span> <span class="k">return</span> <span class="kc">true</span><span class="p">;</span>
+		  <span class="k">else</span> <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
+		<span class="p">}</span>
+		
+		<span class="kd">function</span> <span class="nx">prototypeInstance</span><span class="p">(</span><span class="nx">Parent</span><span class="p">)</span> <span class="p">{</span>
+			<span class="kd">var</span> <span class="nx">tmp</span> <span class="o">=</span> <span class="nx">Parent</span><span class="p">.</span><span class="nx">noInit</span><span class="p">;</span>
+			<span class="nx">Parent</span><span class="p">.</span><span class="nx">noInit</span> <span class="o">=</span> <span class="nx">noInit</span><span class="p">;</span>
+			<span class="kd">var</span> <span class="nx">proto</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Parent</span><span class="p">();</span>
+			
+			<span class="k">if</span> <span class="p">(</span><span class="nx">Parent</span><span class="p">.</span><span class="nx">noInit</span> <span class="o">==</span> <span class="kc">null</span><span class="p">)</span>
+				<span class="k">delete</span> <span class="nx">Parent</span><span class="p">.</span><span class="nx">noInit</span><span class="p">;</span>
+			<span class="k">else</span>
+				<span class="nx">Parent</span><span class="p">.</span><span class="nx">noInit</span> <span class="o">=</span> <span class="nx">tmp</span><span class="p">;</span>
+				
+			<span class="k">return</span> <span class="nx">proto</span><span class="p">;</span>
+		<span class="p">}</span>
+		
+		<span class="kd">function</span> <span class="nx">applyPrototypeProperties</span><span class="p">(</span><span class="nx">donor</span><span class="p">,</span> <span class="nx">receiver</span><span class="p">)</span> <span class="p">{</span>
+			<span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">property</span> <span class="k">in</span> <span class="nx">donor</span><span class="p">)</span> <span class="p">{</span>
+				<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">hasProperty</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">donor</span><span class="p">,</span> <span class="nx">property</span><span class="p">))</span> <span class="k">continue</span><span class="p">;</span>
+				<span class="kd">var</span> <span class="nx">value</span> <span class="o">=</span> <span class="nx">donor</span><span class="p">[</span><span class="nx">property</span><span class="p">];</span>
+				<span class="k">if</span> <span class="p">(</span><span class="k">typeof</span> <span class="nx">value</span> <span class="o">===</span> <span class="s2">&quot;function&quot;</span><span class="p">)</span>
+					<span class="nx">Class</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">defineMethod</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">receiver</span><span class="p">,</span> <span class="nx">property</span><span class="p">,</span> <span class="nx">value</span><span class="p">);</span>
+				<span class="k">else</span>
+					<span class="nx">receiver</span><span class="p">[</span><span class="nx">property</span><span class="p">]</span> <span class="o">=</span> <span class="nx">value</span><span class="p">;</span>
+			<span class="p">}</span>
+			<span class="k">return</span> <span class="nx">receiver</span><span class="p">;</span>
+		<span class="p">}</span>
+		
+		<span class="kd">function</span> <span class="nx">applyStaticProperties</span><span class="p">(</span><span class="nx">donor</span><span class="p">,</span> <span class="nx">receiver</span><span class="p">)</span> <span class="p">{</span>
+			<span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">property</span> <span class="k">in</span> <span class="nx">donor</span><span class="p">)</span> <span class="p">{</span>
+				<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">hasProperty</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">donor</span><span class="p">,</span> <span class="nx">property</span><span class="p">))</span> <span class="k">continue</span><span class="p">;</span>
+				<span class="k">if</span> <span class="p">(</span><span class="nx">isUnwantedItem</span><span class="p">(</span><span class="nx">donor</span><span class="p">,</span> <span class="nx">property</span><span class="p">))</span> <span class="k">continue</span><span class="p">;</span>
+				<span class="kd">var</span> <span class="nx">value</span> <span class="o">=</span> <span class="nx">donor</span><span class="p">[</span><span class="nx">property</span><span class="p">];</span>
+				<span class="k">if</span> <span class="p">(</span><span class="k">typeof</span> <span class="nx">value</span> <span class="o">===</span> <span class="s2">&quot;function&quot;</span><span class="p">)</span>
+					<span class="nx">receiver</span><span class="p">[</span><span class="nx">property</span><span class="p">]</span> <span class="o">=</span> <span class="nx">defineFnWithSuper</span><span class="p">(</span><span class="nx">receiver</span><span class="p">.</span><span class="nx">Parent</span><span class="p">,</span> <span class="nx">property</span><span class="p">,</span> <span class="nx">value</span><span class="p">);</span>
+				<span class="k">else</span>
+					<span class="nx">receiver</span><span class="p">[</span><span class="nx">property</span><span class="p">]</span> <span class="o">=</span> <span class="nx">donor</span><span class="p">[</span><span class="nx">property</span><span class="p">];</span>
+			<span class="p">}</span>
+			
+			<span class="kd">function</span> <span class="nx">isUnwantedItem</span><span class="p">(</span><span class="nx">Parent</span><span class="p">,</span> <span class="nx">prop</span><span class="p">)</span> <span class="p">{</span>
+				<span class="k">if</span> <span class="p">(</span><span class="nx">Parent</span> <span class="o">!==</span> <span class="nx">Class</span><span class="p">)</span> <span class="p">{</span>
+					<span class="k">return</span> <span class="nx">prop</span> <span class="o">===</span> <span class="s2">&quot;Parent&quot;</span><span class="p">;</span>
+				<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+					<span class="k">return</span> <span class="nx">prop</span> <span class="o">===</span> <span class="s2">&quot;define&quot;</span> <span class="o">||</span> <span class="nx">prop</span> <span class="o">===</span> <span class="s2">&quot;def&quot;</span> <span class="o">||</span> <span class="nx">prop</span> <span class="o">===</span> <span class="s2">&quot;simple&quot;</span><span class="p">;</span>
+				<span class="p">}</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+		
+		<span class="kd">function</span> <span class="nx">getObject</span><span class="p">(</span><span class="nx">obj</span><span class="p">)</span> <span class="p">{</span>
+			<span class="k">return</span> <span class="k">typeof</span> <span class="nx">obj</span> <span class="o">===</span> <span class="s2">&quot;function&quot;</span> <span class="o">?</span> <span class="nx">obj</span><span class="p">()</span> <span class="o">:</span> <span class="nx">obj</span><span class="p">;</span>
+		<span class="p">}</span>
+		
+		<span class="kd">function</span> <span class="nx">defineFnWithSuper</span> <span class="p">(</span><span class="nx">__super__</span><span class="p">,</span> <span class="nx">name</span><span class="p">,</span> <span class="nx">fn</span><span class="p">)</span> <span class="p">{</span>
+			<span class="k">return</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+				<span class="kd">var</span> <span class="nx">tmp</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">supr</span><span class="p">,</span>
+				<span class="nx">supr</span> <span class="o">=</span> <span class="nx">__super__</span><span class="p">[</span><span class="nx">name</span><span class="p">];</span>
+				
+				<span class="k">if</span> <span class="p">(</span><span class="k">typeof</span> <span class="nx">supr</span> <span class="o">===</span> <span class="s2">&quot;function&quot;</span><span class="p">)</span>
+					<span class="k">this</span><span class="p">.</span><span class="nx">supr</span> <span class="o">=</span> <span class="nx">bind</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">supr</span><span class="p">,</span> <span class="k">this</span><span class="p">);</span>
+				<span class="k">else</span> <span class="k">delete</span> <span class="k">this</span><span class="p">.</span><span class="nx">supr</span><span class="p">;</span>
+				
+				<span class="kd">var</span> <span class="nx">ret</span> <span class="o">=</span> <span class="nx">fn</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">);</span>
+				<span class="k">if</span> <span class="p">(</span><span class="nx">tmp</span> <span class="o">==</span> <span class="kc">null</span><span class="p">)</span>
+					<span class="k">delete</span> <span class="k">this</span><span class="p">.</span><span class="nx">supr</span><span class="p">;</span>
+				<span class="k">else</span>
+					<span class="k">this</span><span class="p">.</span><span class="nx">supr</span> <span class="o">=</span> <span class="nx">tmp</span><span class="p">;</span>
+					
+				<span class="k">return</span> <span class="nx">ret</span><span class="p">;</span>
+			<span class="p">};</span>
+		<span class="p">}</span>
+	<span class="p">})();</span>
+	</pre></div>             </td>           </tr>                               <tr id="section-21">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-21">&#182;</a>               </div>               <h2>Mixer</h2>
+
+<p><strong><code>mixer</code></strong>: creates a mixer (read: an item that can be mixed in or included to another object).
+All mixers have the method <code>mixTo</code>, which allows you to specify a target on which to perform the
+mixin. Either an object or a function may be passed in to <code>mixer</code>.</p>
+
+<pre><code>var someMixer = mixer(function () {
+  this.a = "a";
+  this.b = "b";
+});
+// or
+var someMixer = mixer({
+  a: 'a'
+  , b: 'b'
+});
+</code></pre>             </td>             <td class="code">               <div class="highlight"><pre>	<span class="k">this</span><span class="p">.</span><span class="nx">mixer</span> <span class="o">=</span> <span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+	  <span class="kd">function</span> <span class="nx">mixer</span><span class="p">(</span><span class="nx">item</span><span class="p">)</span> <span class="p">{</span>
+  		<span class="kd">var</span> <span class="nx">ret</span><span class="p">,</span> <span class="nx">object</span><span class="p">,</span> <span class="nx">itemIsFn</span><span class="p">;</span>
+  		<span class="k">if</span> <span class="p">(</span><span class="k">typeof</span> <span class="nx">item</span>  <span class="o">===</span> <span class="s2">&quot;function&quot;</span><span class="p">)</span> <span class="p">{</span>
+  			<span class="nx">object</span> <span class="o">=</span> <span class="k">void</span> <span class="mi">0</span><span class="p">;</span>
+  			<span class="nx">ret</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+  			  <span class="nx">item</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">);</span>
+  			<span class="p">};</span>
+  		<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+  			<span class="nx">object</span> <span class="o">=</span> <span class="nx">item</span><span class="p">;</span>
+
+  			<span class="nx">ret</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+  				<span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">property</span> <span class="k">in</span> <span class="nx">object</span><span class="p">)</span> <span class="p">{</span>
+  					<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">hasProperty</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">object</span><span class="p">,</span> <span class="nx">property</span><span class="p">))</span> <span class="k">continue</span><span class="p">;</span>
+  					<span class="k">this</span><span class="p">[</span><span class="nx">property</span><span class="p">]</span> <span class="o">=</span> <span class="nx">object</span><span class="p">[</span><span class="nx">property</span><span class="p">];</span>
+  				<span class="p">}</span>
+  			<span class="p">};</span>
+  		<span class="p">}</span>
+
+  		<span class="nx">ret</span><span class="p">.</span><span class="nx">mixTo</span> <span class="o">=</span> <span class="nx">bind</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">mixTo</span><span class="p">,</span> <span class="nx">ret</span><span class="p">);</span>
+
+  		<span class="k">return</span> <span class="nx">ret</span><span class="p">;</span>
+  	<span class="p">};</span>
+    
+    <span class="k">return</span> <span class="nx">mixer</span><span class="p">;</span>
+    
+  	<span class="kd">function</span> <span class="nx">mixTo</span><span class="p">(</span><span class="nx">receiver</span><span class="p">)</span> <span class="p">{</span>
+  		<span class="kd">var</span> <span class="nx">config</span> <span class="o">=</span> <span class="nb">Array</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">slice</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">arguments</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+  		<span class="k">this</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="nx">receiver</span><span class="p">,</span> <span class="nx">config</span><span class="p">);</span>
+  		<span class="k">return</span> <span class="nx">receiver</span><span class="p">;</span>
+  	<span class="p">};</span>
+	<span class="p">})();</span>
+	
+<span class="p">}).</span><span class="nx">call</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+
+</pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 
