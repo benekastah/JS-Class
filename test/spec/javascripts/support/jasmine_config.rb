@@ -3,7 +3,7 @@ module Jasmine
 
     # Add your overrides or custom config code here
     puts "Copying source files into test directory..."
-    `cp ../src/* public/javascripts`
+    `cp ../build/* public/javascripts`
 
   end
 end

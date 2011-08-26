@@ -1,6 +1,6 @@
 try {
-  var Class = require("../../../src/class").Class;
-  var mixer = require("../../../src/class").mixer;
+  var Class = require("../../../build/class").Class;
+  var mixer = require("../../../build/class").mixer;
 } catch (e) {}
 
 var Person = Class.define({
