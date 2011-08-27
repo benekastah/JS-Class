@@ -46,7 +46,10 @@ and you can get the non-minified version in `src/class.js`.
 Happy classing!
 
 ##Short (soon to be longer) list of javascript class implementations/ideas
+  * [CoffeeScript](https://github.com/jashkenas/coffee-script). But when we can't CoffeeScript, we use:
   * [klass](http://www.dustindiaz.com/klass)
+  * [def.js](https://github.com/tobeytailor/def.js)
+  * [js.class](https://github.com/jcoglan/js.class)
   * [simple javascript inheritance](http://ejohn.org/blog/simple-javascript-inheritance/) from John Resig
   * [Douglas Crockford's notes](http://www.crockford.com/javascript/inheritance.html)
   * [Prototype's class](http://www.prototypejs.org/api/class)
